@@ -6,10 +6,13 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
+  Request,
 } from '@nestjs/common';
 import { ProfilesService } from './profiles.service';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { AuthGuard } from '../auth/auth.guard';
 
 @Controller('profiles')
 export class ProfilesController {
@@ -25,14 +28,21 @@ export class ProfilesController {
     return this.profilesService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.profilesService.findOne(+id);
+  // @Get(':id')
+  // findOne(@Param('id') id: string) {
+  //   return this.profilesService.findOne(+id);
+  // }
+
+  @UseGuards(AuthGuard)
+  @Get('byId')
+  getProfile(@Request() req) {
+    return req.user;
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateProfileDto: UpdateProfileDto) {
-    return this.profilesService.update(+id, updateProfileDto);
+  @UseGuards(AuthGuard)
+  @Patch('byId')
+  update(@Body() updateProfileDto: UpdateProfileDto) {
+    return this.profilesService.update(updateProfileDto);
   }
 
   @Delete(':id')

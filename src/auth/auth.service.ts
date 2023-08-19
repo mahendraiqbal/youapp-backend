@@ -1,4 +1,3 @@
-import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { Model } from 'mongoose';
 import { Injectable, Inject, UnauthorizedException } from '@nestjs/common';
@@ -11,7 +10,6 @@ export class AuthService {
   constructor(
     @Inject('AUTH_MODEL')
     private authModel: Model<Auth>,
-    private usersService: UsersService,
     private jwtService: JwtService,
   ) {}
 
