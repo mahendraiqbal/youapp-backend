@@ -1,13 +1,27 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
+import { Model } from 'mongoose';
+import { Injectable, Inject, UnauthorizedException } from '@nestjs/common';
+import { Auth } from './interfaces/auth.interface';
+import { CreateAuthDto } from './dto/create-auth.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
+    @Inject('AUTH_MODEL')
+    private authModel: Model<Auth>,
     private usersService: UsersService,
     private jwtService: JwtService,
   ) {}
+
+  async create(createAuthDto: CreateAuthDto): Promise<Auth> {
+    const createdAuth = new this.authModel(createAuthDto);
+    return createdAuth.save();
+  }
+
+  async findAll(): Promise<Auth[]> {
+    return this.authModel.find().exec();
+  }
 
   async signIn(username, pass) {
     const user = await this.usersService.findOne(username);
