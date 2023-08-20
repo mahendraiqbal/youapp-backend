@@ -1,4 +1,4 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { Model } from 'mongoose';
@@ -24,8 +24,16 @@ export class ProfilesService {
     return `This action returns a #${id} profile`;
   }
 
-  update(updateProfileDto: UpdateProfileDto) {
-    return new this.profileModel(updateProfileDto);
+  update(id: string, updateProfileDto: UpdateProfileDto) {
+    const existingProfile = this.profileModel.findByIdAndUpdate(
+      id,
+      updateProfileDto,
+      { new: true },
+    );
+    if (!existingProfile) {
+      throw new NotFoundException('Task not found');
+    }
+    return existingProfile;
   }
 
   remove(id: number) {

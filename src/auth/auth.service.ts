@@ -1,6 +1,11 @@
 import { JwtService } from '@nestjs/jwt';
 import { Model } from 'mongoose';
-import { Injectable, Inject, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  Inject,
+  UnauthorizedException,
+  ConflictException,
+} from '@nestjs/common';
 import { Auth } from './interfaces/auth.interface';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import * as bcrypt from 'bcrypt';
@@ -18,6 +23,14 @@ export class AuthService {
     const password = createAuthDto.password;
     const hash = await bcrypt.hash(password, saltOrRounds);
     createAuthDto.password = hash;
+
+    const existingAuth = await this.authModel
+      .findOne({ email: createAuthDto.email })
+      .exec();
+    if (existingAuth) {
+      throw new ConflictException('Email already exists');
+    }
+
     const createdAuth = new this.authModel(createAuthDto);
     return createdAuth.save();
   }
