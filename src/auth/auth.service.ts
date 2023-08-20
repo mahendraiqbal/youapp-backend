@@ -35,10 +35,6 @@ export class AuthService {
     return createdAuth.save();
   }
 
-  async findAll(): Promise<Auth[]> {
-    return this.authModel.find().exec();
-  }
-
   async signIn(username, pass) {
     const user = await this.authModel.findOne({
       username: username,
