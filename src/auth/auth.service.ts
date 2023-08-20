@@ -24,21 +24,23 @@ export class AuthService {
     const hash = await bcrypt.hash(password, saltOrRounds);
     createAuthDto.password = hash;
 
-    const existingAuth = await this.authModel
-      .findOne({ email: createAuthDto.email })
-      .exec();
+    const existingAuth = await this.authModel.findOne({
+      email: createAuthDto.email,
+    });
     if (existingAuth) {
       throw new ConflictException('Email already exists');
     }
 
-    const createdAuth = new this.authModel(createAuthDto);
-    return createdAuth.save();
+    return await this.authModel.create(createAuthDto);
   }
 
   async signIn(username, pass) {
     const user = await this.authModel.findOne({
       username: username,
     });
+    if (!user) {
+      throw new UnauthorizedException('User not found'); // Add a meaningful message
+    }
     const isMatch = await bcrypt.compare(pass, user.password);
     if (!isMatch) {
       throw new UnauthorizedException();

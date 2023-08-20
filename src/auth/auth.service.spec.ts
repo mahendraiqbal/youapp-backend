@@ -9,7 +9,6 @@ jest.mock('bcrypt');
 
 const mockAuthModel = {
   findOne: jest.fn(),
-  find: jest.fn(),
   create: jest.fn(),
 };
 
@@ -108,6 +107,17 @@ describe('AuthService', () => {
 
       (bcrypt.compare as jest.Mock).mockResolvedValue(false);
       mockAuthModel.findOne.mockResolvedValue(user);
+
+      await expect(authService.signIn(username, password)).rejects.toThrow(
+        UnauthorizedException,
+      );
+    });
+
+    it('should throw an UnauthorizedException if user does not exist', async () => {
+      const username = 'nonexistentuser';
+      const password = 'password';
+
+      mockAuthModel.findOne.mockResolvedValue(null);
 
       await expect(authService.signIn(username, password)).rejects.toThrow(
         UnauthorizedException,
